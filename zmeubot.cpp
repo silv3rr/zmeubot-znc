@@ -128,7 +128,7 @@ virtual EModRet OnChanMsg(CNick& Nick, CChan& Channel, CString& sMessage) {
 		PutIRC("NOTICE " + Nick.GetNick() + " :" + Version + " - running on " + Running + "");
 	} else if (sMessage.Token(0).Equals(".nick")) {
 		if (sMessage.Token(1).empty()) {
-			//PutIRC("PRIVMSG " + Channel.GetName() + " :" + Nick.GetNick() + ": Perfix: $nick <new nick>");
+			PutIRC("NOTICE " + Nick.GetNick() + " :Syntax: .nick <new nick>");
 		} else if (Nick.GetHost() == Admin) {
 			PutIRC("NICK " + sMessage.Token(1));
 			PutIRC("NOTICE " + Nick.GetNick() + " :Nickname sucessfully changed to "+ sMessage.Token(1));
