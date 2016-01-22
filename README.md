@@ -6,6 +6,4 @@ READ THE FUCKING MANUAL. :-)
 
 ZNC - http://znc.in
 
-FOONET - https://foonet.org
-
 ..others..
