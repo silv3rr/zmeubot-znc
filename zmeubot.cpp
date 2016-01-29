@@ -58,7 +58,7 @@ public:
 };
 
 virtual ~CZmeuMod() {
-	PutModule("ZmEu Bot for ZNC - UNLOADED !");
+	PutModule("ZmEu Bot - module for ZNC - UNLOADED !");
 }
 
 virtual EModRet OnIRCRegistration(CString& sPass, CString& sNick, CString& sIdent, CString& sRealName) {
@@ -162,9 +162,9 @@ virtual void OnModCommand(const CString& sCommand) {
 		// this cmds available only on console
 		// please dont remove or change and support the author
 		// thank you
-		PutModule("ZmEu Bot v0.1 - running on " + Running + " v" + CZNC::Get().GetVersion());
+		PutModule("ZmEu Bot - module for ZNC - running on " + Running + " v" + CZNC::Get().GetVersion());
 	} else if (sCommand.Equals("help")) {
-		PutModule("Contact me at a@foonet.org");
+		PutModule("Contact me at: a [@] foonet [.] org");
 	} else {
 		PutModule("Failed to run command: " + sCommand + ". -- For help try: help");
 	}
@@ -175,4 +175,4 @@ template<> void TModInfo<CZmeuMod>(CModInfo& Info) {
 	Info.SetWikiPage("zmeubot");
 }
 
-MODULEDEFS(CZmeuMod, "ZmEu Bot v0.1 for ZNC")
+MODULEDEFS(CZmeuMod, "ZmEu Bot - module for ZNC")
