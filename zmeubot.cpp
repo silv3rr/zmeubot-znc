@@ -12,17 +12,18 @@ Your donations pay for projects, staff, servers and protective infrastructure.
 BTC: 1zmeu5BeWBprWyPv5ntNZKR7uThXaG9ic
 */
 
-#include "znc.h"
-#include "Chan.h"
-#include "User.h"
-#include "Modules.h"
-#include "ZNCString.h"
-#include "Server.h"
+#include "znc/znc.h"
+#include "znc/Chan.h"
+#include <znc/IRCNetwork.h>
+#include "znc/User.h"
+#include "znc/Modules.h"
+#include "znc/ZNCString.h"
+#include "znc/Server.h"
 #include <sstream>
 #include <utility>
 
-#include "Client.h"
-#include "IRCSock.h"
+#include "znc/Client.h"
+#include "znc/IRCSock.h"
 #include <stdio.h>
 #include <netdb.h>
 #include <sys/types.h>
@@ -41,6 +42,30 @@ string en_failed = "failed to run command"; // invalid commands
 string en_invalid = "invalid credentials"; // u dont have permissions
 string en_dns_invalid = "DNS unable to resolve address"; // cant resolve ip/dns
 string en_dns_valid = "DNS resolved"; // yay resolved
+
+class CZmeuTimer : public CTimer {
+  public:
+
+    CZmeuTimer(CModule* pModule, unsigned int uInterval, unsigned int uCycles,
+                 const CString& sLabel, const CString& sDescription)
+        : CTimer(pModule, uInterval, uCycles, sLabel, sDescription) {}
+
+    ~CZmeuTimer() override {}
+    //virtual ~CZmeuTimer() {}
+
+  private:
+  protected:
+  //virtual void RunJob() override;
+  virtual void RunJob() override {
+    CIRCNetwork* pNetwork = GetModule()->GetNetwork();
+    CChan* pChan = pNetwork->FindChan(GetName().Token(1, true));
+    if (pChan) {
+      GetModule()->PutIRC("PRIVMSG " + pChan->GetName() + " :" + CTimer::GetDescription());
+    } else {
+      GetModule()->PutModule("ZmEu Timer - unable to announce to chan: " + CTimer::GetDescription());
+    }
+  }
+};
 
 class CZmeuMod : public CModule {
 public:
@@ -80,23 +105,25 @@ virtual EModRet OnChanMsg(CNick& Nick, CChan& Channel, CString& sMessage) {
 		}
 	} else if (sMessage.Token(0).Equals(".+ads")) {
 		if (Nick.GetHost() == Admin) {
-			AddTimer(new CSampleTimer(this, 120, 20, "Reclama1", "my first adsense".")); // 120 secs
+			AddTimer(new CZmeuTimer(this, 120, 20, "Reclama1", "my first adsense.")); // 120 secs
 			PutIRC("NOTICE " + Nick.GetNick() + " :Ads now its activated.");
 		} else {
 			PutIRC("NOTICE " + Nick.GetNick() + " :" + en_invalid + ".");
 		}
 	} else if (sMessage.Token(0).Equals(".-ads")) {
 		if (Nick.GetHost() == Admin) {
-			RemTimer("Reclama1")
+			RemTimer("Reclama1");
 			PutIRC("NOTICE " + Nick.GetNick() + " :Ads now its disabled.");
 		} else {
 			PutIRC("NOTICE " + Nick.GetNick() + " :" + en_invalid + ".");
 		}
 	} else if (sMessage.Token(0).Equals(".ping")) {
 		if (Nick.GetHost() == Admin) {
-			CUser* pUser = m_Module.GetUser();
-			CString sConfNick = pUser->GetNick();
-			PutIRC("PING "+ Nick.GetNick() +"");
+			//CUser* pUser = m_Module.GetUser();
+			//CUser* pUser = GetUser();
+			//CString sConfNick = pUser->GetNick();
+			//PutIRC("PING "+ Nick.GetNick() +"");
+			PutIRC("PRIVMSG " +  Nick.GetNick() + " :PING");
 		} else {
 			PutIRC("NOTICE " + Nick.GetNick() + " :" + en_invalid + ".");
 		}
