@@ -7,6 +7,10 @@ Zmeubot - module for ZNC (v0.1)
 
 - **ZNC - http://znc.in**
 - **..others..**
+- http://wiki.znc.in/Compiling_modules
+
+### Changes:
+Fixed compile errors, Timer and .ping
 
 LICENSE
 ===
