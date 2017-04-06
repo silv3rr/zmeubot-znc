@@ -1,7 +1,6 @@
 /*
 The MIT License (MIT)
 Copyright (c) 2016 - zmeu
-
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
@@ -10,6 +9,10 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 /*
 Your donations pay for projects, staff, servers and protective infrastructure.
 BTC: 1zmeu5BeWBprWyPv5ntNZKR7uThXaG9ic
+*/
+
+/*
+20170406 slv
 */
 
 #include "znc/znc.h"
@@ -35,9 +38,9 @@ BTC: 1zmeu5BeWBprWyPv5ntNZKR7uThXaG9ic
 using namespace std;
 
 string Admin = "hostname.foonet.org";
-string Version = "Zmeu is an open source IRC Bot written in C++. Current stable version: 0.1";
+string Version = "Zmeu is an open source IRC Bot written in C++. Current stable version: 0.2";
 string Version2 = "Zmeu aims to be a secure and easy to setup and manage botnet, compared to statically ZNC.";
-string Running = "SunOS sun4u"; // false version
+string Running = "SunOS 5.11 sun4u sparc"; // false version
 string en_failed = "failed to run command"; // invalid commands
 string en_invalid = "invalid credentials"; // u dont have permissions
 string en_dns_invalid = "DNS unable to resolve address"; // cant resolve ip/dns
@@ -45,24 +48,23 @@ string en_dns_valid = "DNS resolved"; // yay resolved
 
 class CZmeuTimer : public CTimer {
   public:
-
     CZmeuTimer(CModule* pModule, unsigned int uInterval, unsigned int uCycles,
                  const CString& sLabel, const CString& sDescription)
         : CTimer(pModule, uInterval, uCycles, sLabel, sDescription) {}
 
-    ~CZmeuTimer() override {}
-    //virtual ~CZmeuTimer() {}
-
+    virtual ~CZmeuTimer() override {}
   private:
   protected:
-  //virtual void RunJob() override;
   virtual void RunJob() override {
-    CIRCNetwork* pNetwork = GetModule()->GetNetwork();
-    CChan* pChan = pNetwork->FindChan(GetName().Token(1, true));
+    CString Label = GetName().Token(0, false, " ");
+    CString Channel = GetName().Token(1, true);
+    CIRCNetwork *pNetwork = GetModule()->GetNetwork();
+    CChan *pChan = pNetwork->FindChan(Channel);
+
     if (pChan) {
-      GetModule()->PutIRC("PRIVMSG " + pChan->GetName() + " :" + CTimer::GetDescription());
+      GetModule()->PutIRC("PRIVMSG " + Channel + " :" + Label + ": " + GetDescription());
     } else {
-      GetModule()->PutModule("ZmEu Timer - unable to announce to chan: " + CTimer::GetDescription());
+      GetModule()->PutModule("ZmEu Bot Timer - Unable to announce to IRC: " + Channel + " " + Label + ": \"" + GetDescription() + "\"");
     }
   }
 };
@@ -105,25 +107,26 @@ virtual EModRet OnChanMsg(CNick& Nick, CChan& Channel, CString& sMessage) {
 		}
 	} else if (sMessage.Token(0).Equals(".+ads")) {
 		if (Nick.GetHost() == Admin) {
-			AddTimer(new CZmeuTimer(this, 120, 20, "Reclama1", "my first adsense.")); // 120 secs
-			PutIRC("NOTICE " + Nick.GetNick() + " :Ads now its activated.");
+			//AddTimer(new CZmeuTimer(this, 120, 20, "Reclama1", "My first adsense.")); // 120 secs
+			AddTimer(new CZmeuTimer(this, 1, 3, "Reclama1 " + Channel.GetName(), "My first adsense."));
+			PutIRC("NOTICE " + Nick.GetNick() + " :Ads now activated.");
 		} else {
 			PutIRC("NOTICE " + Nick.GetNick() + " :" + en_invalid + ".");
 		}
 	} else if (sMessage.Token(0).Equals(".-ads")) {
 		if (Nick.GetHost() == Admin) {
 			RemTimer("Reclama1");
-			PutIRC("NOTICE " + Nick.GetNick() + " :Ads now its disabled.");
+			PutIRC("NOTICE " + Nick.GetNick() + " :Ads now disabled.");
 		} else {
 			PutIRC("NOTICE " + Nick.GetNick() + " :" + en_invalid + ".");
 		}
 	} else if (sMessage.Token(0).Equals(".ping")) {
 		if (Nick.GetHost() == Admin) {
-			//CUser* pUser = m_Module.GetUser();
-			//CUser* pUser = GetUser();
-			//CString sConfNick = pUser->GetNick();
-			//PutIRC("PING "+ Nick.GetNick() +"");
-			PutIRC("PRIVMSG " +  Nick.GetNick() + " :PING");
+                        time_t now = time(0);
+                        time_t t = mktime(localtime(&now)); 
+                        std::stringstream stream;
+                        stream << t;
+			PutIRC("PRIVMSG " +  Nick.GetNick() + " :\001PING " + stream.str() + "\001");
 		} else {
 			PutIRC("NOTICE " + Nick.GetNick() + " :" + en_invalid + ".");
 		}
