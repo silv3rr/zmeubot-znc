@@ -4,8 +4,8 @@ Zmeubot - module for ZNC (v0.2)
 Zmeu is an open source IRC Bot written in C++.
 Zmeu aims to be a secure and easy to setup and manage botnet, compared to statically ZNC.
 
-- Your donations pay for projects, staff, servers and protective infrastructure
-- BTC: 1zmeu5BeWBprWyPv5ntNZKR7uThXaG9ic
+[@foonet](https://github.com/foonet): - Your donations pay for projects, staff, servers and protective infrastructure<br>
+[@foonet](https://github.com/foonet): - BTC: 1zmeu5BeWBprWyPv5ntNZKR7uThXaG9ic
 
 **PLEASE, READ THE FUCKING MANUAL ! :)**
 
